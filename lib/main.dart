@@ -1,9 +1,12 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
+import 'package:ddsl_app/repository/movement_repository.dart';
 import 'package:ddsl_app/view/HomeScreen.dart';
 import 'package:ddsl_app/view/NewMovementScreen.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MovementRepository.instance.loadFromStorage();
   runApp(const DDSLApp());
 }
 
@@ -14,7 +17,6 @@ class DDSLApp extends StatefulWidget {
 }
 
 class _DDSLAppState extends State<DDSLApp> {
-  
   List<IconData> iconsList = [Icons.home, Icons.add, Icons.rocket_launch];
   List<String> iconsNames = ["Home", "Novo", "Metas"];
   int indexSelectTab = 0;
@@ -27,21 +29,15 @@ class _DDSLAppState extends State<DDSLApp> {
           children: [
             IndexedStack(
               index: indexSelectTab,
-              children: const [
-                HomeScreen(),
-                NewMovementScreen()
-              ],
+              children: const [HomeScreen(), NewMovementScreen()],
             ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: _navBar()
-            ),
+            Align(alignment: Alignment.bottomCenter, child: _navBar()),
           ],
         ),
       ),
     );
   }
-  
+
   Widget _navBar() {
     return Container(
       height: 65,
@@ -102,5 +98,4 @@ class _DDSLAppState extends State<DDSLApp> {
       ),
     );
   }
-
 }

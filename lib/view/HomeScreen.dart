@@ -4,28 +4,36 @@ import 'package:ddsl_app/widgets/GreenReactangle.dart';
 import 'package:ddsl_app/widgets/WhiteCardBalance.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const HomeScreen());
-}
-
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    List<double> valuesPay = [100.20,-200.50,304.03,500.00,-200.00,140.00,-160.00];
+    List<double> valuesPay = [
+      100.20,
+      -200.50,
+      304.03,
+      500.00,
+      -200.00,
+      140.00,
+      -160.00,
+    ];
+    const double headerHeight = 230;
+    final double topInset = GreenRectangle.totalHeight(
+      context,
+      heightBlockTitle: headerHeight,
+    );
 
     return Scaffold(
       body: Stack(
         children: [
           GreenRectangle(
             titlePage: "DDSL APP",
-            heightBlockTitle: 230,
+            heightBlockTitle: headerHeight,
             topTextTitle: 0,
           ),
           Transform.translate(
-            offset: const Offset(20, 160),
+            offset: Offset(20, topInset - headerHeight + 160),
             child: WhiteCardBalance(
               valueAllBalance: 199.0,
               valueEntryBalance: 0.0,
@@ -34,7 +42,7 @@ class HomeScreen extends StatelessWidget {
           ),
           Divider(height: 650, indent: 15, endIndent: 20),
           Transform.translate(
-            offset: const Offset(0, 330),
+            offset: Offset(0, topInset - headerHeight + 330),
             child: ListView.builder(
               padding: const EdgeInsets.only(top: 0, bottom: 350),
               itemCount: valuesPay.length,
@@ -79,7 +87,6 @@ class HomeScreen extends StatelessWidget {
               },
             ),
           ),
-          
         ],
       ),
     );

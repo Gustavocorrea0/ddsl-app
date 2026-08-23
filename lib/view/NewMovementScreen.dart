@@ -1,9 +1,57 @@
 // ignore: file_names
+import 'package:ddsl_app/models/movement.dart';
+import 'package:ddsl_app/repository/movement_repository.dart';
 import 'package:ddsl_app/widgets/GreenReactangle.dart';
 import 'package:flutter/material.dart';
 
-class NewMovementScreen extends StatelessWidget {
+class NewMovementScreen extends StatefulWidget {
   const NewMovementScreen({super.key});
+  @override
+  State<NewMovementScreen> createState() => _NewMovementScreenState();
+}
+
+class _NewMovementScreenState extends State<NewMovementScreen> {
+  final TextEditingController _valuePaymentController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
+  String? _categorySelect;
+  String? _typeSelect;
+  String? _paymentSelect;
+  String? _dateSelect;
+
+  void _saveLaunch() {
+    String valuePaymentText = _valuePaymentController.text;
+    String description = _descriptionController.text;
+
+    if (valuePaymentText.isEmpty || _categorySelect == null || _dateSelect == null) {
+      print("Preencha os campos obrigatórios: valor, categoria e data.");
+      return;
+    }
+
+    double valuePayment = double.tryParse(valuePaymentText.replaceAll(',', '.')) ?? 0.0;
+
+    final movement = Movement(
+      value: valuePayment,
+      description: description,
+      date: _dateSelect!,
+      category: _categorySelect!,
+      type: _typeSelect,
+      paymentMethod: _paymentSelect,
+    );
+
+    MovementRepository.instance.add(movement);
+
+    print("----- LANÇAMENTO SALVO -----");
+    print(movement);
+    print("Total de lançamentos: ${MovementRepository.instance.movements.length}");
+  }
+
+  @override
+  void dispose() {
+    _valuePaymentController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +68,9 @@ class NewMovementScreen extends StatelessWidget {
               top: 180,
               left: 20,
               right: 20,
-              child: RadioSelectMovimentType(),
+              child: RadioSelectMovimentType(
+                 onChanged: (value) { setState(() {_typeSelect = value; }); }
+              ),
             ),
             Positioned(
               top: 250,
@@ -29,6 +79,7 @@ class NewMovementScreen extends StatelessWidget {
               child: SizedBox(
                 width: 370,
                 child: TextFormField(
+                  controller: _valuePaymentController,
                   keyboardType: TextInputType.numberWithOptions(),
                   decoration: const InputDecoration(
                     labelText: "Valor (R\$)",
@@ -56,19 +107,25 @@ class NewMovementScreen extends StatelessWidget {
               top: 320,
               left: 20,
               right: 20,
-              child: CustomDropdownListExit(),
+              child: CustomDropdownListExit(
+                onChanged: (value){ setState(() { _categorySelect = value; }); },
+              ),
             ),
             Positioned(
               top: 390,
               left: 20,
               right: 20,
-              child: CustomDropdownListPayment(),
+              child: CustomDropdownListPayment(
+                onChanged: (value) => setState(() => _paymentSelect = value)
+              ),
             ),
             Positioned(
               top: 460,
               left: 20,
               right: 20,
-              child: CustomDateCalendar(),
+              child: CustomDateCalendar(
+                onChanged: (value) { setState(() { _dateSelect = value; }); },
+              ),
             ),
             Positioned(
               top: 540,
@@ -77,9 +134,10 @@ class NewMovementScreen extends StatelessWidget {
               child: SizedBox(
                 width: 370,
                 child: TextFormField(
+                  controller: _descriptionController,
                   decoration: const InputDecoration(
                     labelText: 'Descrição',
-                    hintText: "Insira a Descricao da Movimentação",
+                    hintText: "Insira a Descricao do Lancamento",
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -96,7 +154,8 @@ class NewMovementScreen extends StatelessWidget {
               child: Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    print("Botão Clicado!");
+                    print("Save Lauch");
+                    _saveLaunch();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -122,29 +181,28 @@ class NewMovementScreen extends StatelessWidget {
       ),
     );
   }
+
 }
 
 class RadioSelectMovimentType extends StatefulWidget {
-  const RadioSelectMovimentType({super.key});
+  final Function(String?) onChanged;
+  const RadioSelectMovimentType({super.key, required this.onChanged});
   @override
   State<RadioSelectMovimentType> createState() => _RadioMoviment();
 }
 
 class _RadioMoviment extends State<RadioSelectMovimentType> {
-  String? selectField = "OP1";
+  String? selectField = "Entrada";
 
   @override
   Widget build(BuildContext context) {
     return InputDecorator(
       decoration: const InputDecoration(
-        labelText: 'Tipo', // O título que fica na bordinha
+        labelText: 'Tipo',
         filled: true,
         border: InputBorder.none,
         fillColor: Color.fromARGB(0, 255, 255, 255),
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 0,
-        ), // Ajusta o espaço interno
+        contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
       ),
       child: RadioGroup<String>(
         groupValue: selectField,
@@ -152,22 +210,13 @@ class _RadioMoviment extends State<RadioSelectMovimentType> {
           setState(() {
             selectField = value;
           });
+          widget.onChanged(value); // <-- avisa o pai
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            Row(
-              children: [
-                Radio<String>(value: "Entrada"),
-                const Text("Entrada"),
-              ],
-            ),
-            Row(
-              children: [
-                Radio<String>(value: "Saida"),
-                const Text("Saida"),
-              ],
-            ),
+            Row(children: [Radio<String>(value: "Entrada"), const Text("Entrada")]),
+            Row(children: [Radio<String>(value: "Saida"), const Text("Saida")]),
           ],
         ),
       ),
@@ -176,14 +225,14 @@ class _RadioMoviment extends State<RadioSelectMovimentType> {
 }
 
 class CustomDropdownListExit extends StatefulWidget {
-  const CustomDropdownListExit({super.key});
+  final Function(String?) onChanged;
+  const CustomDropdownListExit({super.key, required this.onChanged});
   @override
   State<CustomDropdownListExit> createState() => _DropdownListExit();
 }
 
 class _DropdownListExit extends State<CustomDropdownListExit> {
   String? selectItem;
-
   final List<String> categorysList = [
     'Alimentacao',
     'Lazer',
@@ -211,26 +260,23 @@ class _DropdownListExit extends State<CustomDropdownListExit> {
         setState(() {
           selectItem = newValue;
         });
+        widget.onChanged(newValue);
       },
     );
   }
+
 }
 
 class CustomDropdownListPayment extends StatefulWidget {
-  const CustomDropdownListPayment({super.key});
+  final Function(String?) onChanged;
+  const CustomDropdownListPayment({super.key, required this.onChanged});
   @override
   State<CustomDropdownListPayment> createState() => _DropListPayment();
 }
 
 class _DropListPayment extends State<CustomDropdownListPayment> {
   String? selectedPaymentForm;
-
-  final List<String> paymentList = [
-    "Dinheiro",
-    "Cartão de Credito",
-    "Cartão de Debito",
-    "PIX",
-  ];
+  final List<String> paymentList = ["Dinheiro", "Cartão de Credito", "Cartão de Debito", "PIX"];
 
   @override
   Widget build(BuildContext context) {
@@ -240,25 +286,21 @@ class _DropListPayment extends State<CustomDropdownListPayment> {
         hintText: "Insira uma Forma de Pagamento",
         filled: true,
         fillColor: Colors.white,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
       ),
       initialValue: selectedPaymentForm,
-      items: paymentList.map((String payment) {
-        return DropdownMenuItem<String>(value: payment, child: Text(payment));
-      }).toList(),
+      items: paymentList.map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
       onChanged: (String? newValue) {
-        setState(() {
-          selectedPaymentForm = newValue;
-        });
+        setState(() => selectedPaymentForm = newValue);
+        widget.onChanged(newValue); // <-- avisa o pai
       },
     );
   }
 }
 
 class CustomDateCalendar extends StatefulWidget {
-  const CustomDateCalendar({super.key});
+  final Function(String) onChanged;
+  const CustomDateCalendar({super.key, required this.onChanged});
   @override
   State<CustomDateCalendar> createState() => _CustomDateCalendarState();
 }
@@ -273,15 +315,13 @@ class _CustomDateCalendarState extends State<CustomDateCalendar> {
       firstDate: DateTime(2000),
       lastDate: DateTime(2100),
     );
-
     if (dateSelected != null) {
-      setState(() {
-        String day = dateSelected.day.toString().padLeft(2, '0');
-        String month = dateSelected.month.toString().padLeft(2, '0');
-        String year = dateSelected.year.toString();
-
-        _dateController.text = "$day/$month/$year";
-      });
+      String day = dateSelected.day.toString().padLeft(2, '0');
+      String month = dateSelected.month.toString().padLeft(2, '0');
+      String year = dateSelected.year.toString();
+      String formatted = "$day/$month/$year";
+      setState(() => _dateController.text = formatted);
+      widget.onChanged(formatted); // <-- avisa o pai
     }
   }
 
@@ -303,16 +343,9 @@ class _CustomDateCalendarState extends State<CustomDateCalendar> {
         filled: true,
         fillColor: Colors.white,
         suffix: Icon(Icons.calendar_today),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return "Informe uma Data";
-        }
-        return null;
-      },
+      validator: (value) => (value == null || value.isEmpty) ? "Informe uma Data" : null,
     );
   }
 }

@@ -13,6 +13,23 @@ class WhiteCardBalance extends StatelessWidget {
     this.valueExitBalance = 0.0,
   });
 
+  String _formatMoney(double value) {
+    final bool isNegative = value < 0;
+    final List<String> parts = value.abs().toStringAsFixed(2).split('.');
+    final String integerPart = parts[0];
+    final String decimalPart = parts[1];
+
+    final StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < integerPart.length; i++) {
+      final int posFromRight = integerPart.length - i;
+      buffer.write(integerPart[i]);
+      if (posFromRight > 1 && posFromRight % 3 == 1) {
+        buffer.write('.');
+      }
+    }
+    return '${isNegative ? '-' : ''}$buffer,$decimalPart';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -33,12 +50,12 @@ class WhiteCardBalance extends StatelessWidget {
       child: Column(
         children: [
           Transform.translate(
-            offset: const Offset(10, 15),
+            offset: const Offset(20, 15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Saldo: R\$ $valueAllBalance",
+                  "Saldo: R\$ ${_formatMoney(valueAllBalance)}",
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 24,
@@ -46,9 +63,9 @@ class WhiteCardBalance extends StatelessWidget {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                Divider( indent: 0, endIndent: 20 ),
+                Divider( indent: 0, endIndent: 35 ),
                 Text(
-                  "Entradas: R\$ $valueEntryBalance",
+                  "Entradas: R\$ ${_formatMoney(valueEntryBalance)}",
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 16,
@@ -57,7 +74,7 @@ class WhiteCardBalance extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "Saidas: R\$ $valueExitBalance",
+                  "Saidas: R\$ ${_formatMoney(valueExitBalance)}",
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 16,

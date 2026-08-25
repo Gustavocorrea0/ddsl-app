@@ -1,28 +1,82 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
+import 'package:ddsl_app/repository/movement_repository.dart';
 import 'package:ddsl_app/widgets/GreenReactangle.dart';
 import 'package:ddsl_app/widgets/WhiteCardBalance.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  static const int _pageSize = 10;
+
+  final ScrollController _historyScrollController = ScrollController();
+  int _visibleCount = _pageSize;
+
+  @override
+  void initState() {
+    super.initState();
+    MovementRepository.instance.addListener(_onMovementsChanged);
+    _historyScrollController.addListener(_onHistoryScroll);
+  }
+
+  @override
+  void dispose() {
+    MovementRepository.instance.removeListener(_onMovementsChanged);
+    _historyScrollController.removeListener(_onHistoryScroll);
+    _historyScrollController.dispose();
+    super.dispose();
+  }
+
+  void _onMovementsChanged() {
+    setState(() {});
+  }
+
+  void _onHistoryScroll() {
+    final position = _historyScrollController.position;
+    if (position.pixels < position.maxScrollExtent - 200) return;
+
+    final total = MovementRepository.instance.movements.length;
+    if (_visibleCount >= total) return;
+
+    setState(() {
+      _visibleCount = (_visibleCount + _pageSize).clamp(0, total);
+    });
+  }
+
+  String _formatMoney(double value) {
+    final bool isNegative = value < 0;
+    final List<String> parts = value.abs().toStringAsFixed(2).split('.');
+    final String integerPart = parts[0];
+    final String decimalPart = parts[1];
+
+    final StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < integerPart.length; i++) {
+      final int posFromRight = integerPart.length - i;
+      buffer.write(integerPart[i]);
+      if (posFromRight > 1 && posFromRight % 3 == 1) {
+        buffer.write('.');
+      }
+    }
+    return '${isNegative ? '-' : ''}$buffer,$decimalPart';
+  }
+
+  @override
   Widget build(BuildContext context) {
-    List<double> valuesPay = [
-      100.20,
-      -200.50,
-      304.03,
-      500.00,
-      -200.00,
-      140.00,
-      -160.00,
-    ];
     const double headerHeight = 230;
     final double topInset = GreenRectangle.totalHeight(
       context,
       heightBlockTitle: headerHeight,
     );
+    final repository = MovementRepository.instance;
+    final movements = repository.movementsSortedByDateDesc;
+    final int visibleCount = _visibleCount.clamp(0, movements.length);
+    final bool hasMore = visibleCount < movements.length;
 
     return Scaffold(
       body: Stack(
@@ -35,23 +89,34 @@ class HomeScreen extends StatelessWidget {
           Transform.translate(
             offset: Offset(20, topInset - headerHeight + 160),
             child: WhiteCardBalance(
-              valueAllBalance: 199.0,
-              valueEntryBalance: 0.0,
-              valueExitBalance: 0.0,
+              valueAllBalance: repository.saldo,
+              valueEntryBalance: repository.totalEntradas,
+              valueExitBalance: repository.totalSaidas,
             ),
           ),
-          Divider(height: 650, indent: 15, endIndent: 20),
+          Divider(height: 740, indent: 15, endIndent: 20),
           Transform.translate(
             offset: Offset(0, topInset - headerHeight + 330),
             child: ListView.builder(
-              padding: const EdgeInsets.only(top: 0, bottom: 350),
-              itemCount: valuesPay.length,
+              controller: _historyScrollController,
+              padding: const EdgeInsets.only(top: 0, bottom: 450),
+              itemCount: visibleCount + (hasMore ? 1 : 0),
               itemBuilder: (context, index) {
+                if (index >= visibleCount) {
+                  return const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Center(
+                      child: CircularProgressIndicator(color: Colors.white),
+                    ),
+                  );
+                }
+
+                final movement = movements[index];
                 return Center(
                   child: InkWell(
                     onTap: () {
                       // ignore: avoid_print
-                      print('Selecionado: ${valuesPay[index]}');
+                      print('Selecionado: $movement');
                     },
                     borderRadius: BorderRadius.circular(10),
                     child: Container(
@@ -65,14 +130,30 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "R\$ " + valuesPay[index].toStringAsPrecision(3),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontFamily: 'DM Sans',
-                              fontWeight: FontWeight.w600,
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                movement.value < 0
+                                    ? Icons.arrow_downward
+                                    : Icons.arrow_upward,
+                                color: movement.value < 0
+                                    ? Colors.red
+                                    : Colors.green,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "R\$ " + _formatMoney(movement.value),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'DM Sans',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           ),
                           Icon(
                             Icons.chevron_right,

@@ -38,14 +38,14 @@ class WhiteCardBalance extends StatelessWidget {
       decoration: BoxDecoration(
         color: Color.fromARGB(255, 255, 255, 255),
         borderRadius: BorderRadius.circular(10),
-        boxShadow: [ 
+        boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             spreadRadius: 1,
-            offset: const Offset(0, 4)
-          )
-        ]
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -63,24 +63,40 @@ class WhiteCardBalance extends StatelessWidget {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                Divider( indent: 0, endIndent: 35 ),
-                Text(
-                  "Entradas: R\$ ${_formatMoney(valueEntryBalance)}",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'DM Sans',
-                    fontWeight: FontWeight.w600,
-                  ),
+                Divider(indent: 0, endIndent: 35),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.arrow_circle_up, color: Colors.green, size: 20),
+                    const SizedBox(width: 5),
+                    Text(
+                      "Entradas: R\$ ${_formatMoney(valueEntryBalance)}",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  "Saidas: R\$ ${_formatMoney(valueExitBalance)}",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'DM Sans',
-                    fontWeight: FontWeight.w600,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.arrow_circle_down, color: Colors.red, size: 20),
+                    const SizedBox(width: 5),
+                    Text(
+                      "Saidas: R\$ ${_formatMoney(valueExitBalance)}",
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

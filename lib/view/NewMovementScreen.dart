@@ -5,7 +5,6 @@ import 'package:ddsl_app/widgets/GreenReactangle.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-
 class _CurrencyInputFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -218,7 +217,7 @@ class _NewMovementScreenState extends State<NewMovementScreen> {
                   ),
                 ),
                 Positioned(
-                  top: topInset + 100,
+                  top: topInset + 105,
                   left: 20,
                   right: 20,
                   child: SizedBox(
@@ -252,7 +251,7 @@ class _NewMovementScreenState extends State<NewMovementScreen> {
                   ),
                 ),
                 Positioned(
-                  top: topInset + 170,
+                  top: topInset + 175,
                   left: 20,
                   right: 20,
                   child: CustomDropdownListCategory(
@@ -267,7 +266,7 @@ class _NewMovementScreenState extends State<NewMovementScreen> {
                   ),
                 ),
                 Positioned(
-                  top: topInset + 240,
+                  top: topInset + 245,
                   left: 20,
                   right: 20,
                   child: CustomDropdownListPayment(
@@ -279,7 +278,7 @@ class _NewMovementScreenState extends State<NewMovementScreen> {
                   ),
                 ),
                 Positioned(
-                  top: topInset + 310,
+                  top: topInset + 315,
                   left: 20,
                   right: 20,
                   child: CustomDateCalendar(
@@ -364,6 +363,7 @@ class _RadioMoviment extends State<RadioSelectMovimentType> {
     return InputDecorator(
       decoration: const InputDecoration(
         labelText: 'Tipo',
+        labelStyle: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
         filled: true,
         border: InputBorder.none,
         fillColor: Color.fromARGB(0, 255, 255, 255),
@@ -375,7 +375,7 @@ class _RadioMoviment extends State<RadioSelectMovimentType> {
           setState(() {
             selectField = value;
           });
-          widget.onChanged(value); 
+          widget.onChanged(value);
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -383,13 +383,13 @@ class _RadioMoviment extends State<RadioSelectMovimentType> {
             Row(
               children: [
                 Radio<String>(value: "Entrada"),
-                const Text("Entrada"),
+                const Text("Entrada", style: TextStyle(fontSize: 17)),
               ],
             ),
             Row(
               children: [
                 Radio<String>(value: "Saida"),
-                const Text("Saida"),
+                const Text("Saida", style: TextStyle(fontSize: 17)),
               ],
             ),
           ],
@@ -477,7 +477,7 @@ class _DropListPayment extends State<CustomDropdownListPayment> {
           .toList(),
       onChanged: (String? newValue) {
         setState(() => selectedPaymentForm = newValue);
-        widget.onChanged(newValue); 
+        widget.onChanged(newValue);
       },
     );
   }
@@ -511,7 +511,7 @@ class _CustomDateCalendarState extends State<CustomDateCalendar> {
       String year = dateSelected.year.toString();
       String formatted = "$day/$month/$year";
       setState(() => _dateController.text = formatted);
-      widget.onChanged(formatted); 
+      widget.onChanged(formatted);
     }
   }
 

@@ -6,12 +6,14 @@ class GreenRectangle extends StatelessWidget {
   final String titlePage;
   final double heightBlockTitle;
   final double topTextTitle;
+  final double fontSizeTitle;
 
   const GreenRectangle({
     super.key,
     this.titlePage = "",
     this.heightBlockTitle = 150,
     this.topTextTitle = 0.2,
+    this.fontSizeTitle = 27,
   });
 
   static double totalHeight(
@@ -41,7 +43,7 @@ class GreenRectangle extends StatelessWidget {
           titlePage,
           style: TextStyle(
             color: Colors.white,
-            fontSize: 27,
+            fontSize: fontSizeTitle,
             fontFamily: 'DM Sans',
             fontWeight: FontWeight.w900,
           ),

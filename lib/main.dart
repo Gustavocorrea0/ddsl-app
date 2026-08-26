@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
+import 'package:ddsl_app/models/movement.dart';
 import 'package:ddsl_app/repository/movement_repository.dart';
+import 'package:ddsl_app/view/DetailMovement.dart';
 import 'package:ddsl_app/view/HomeScreen.dart';
 import 'package:ddsl_app/view/NewMovementScreen.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +22,7 @@ class _DDSLAppState extends State<DDSLApp> {
   List<IconData> iconsList = [Icons.home, Icons.add, Icons.rocket_launch];
   List<String> iconsNames = ["Home", "Novo", "Metas"];
   int indexSelectTab = 0;
+  Movement? _selectedMovement;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +32,24 @@ class _DDSLAppState extends State<DDSLApp> {
           children: [
             IndexedStack(
               index: indexSelectTab,
-              children: const [HomeScreen(), NewMovementScreen()],
+              children: [
+                HomeScreen(
+                  onMovementTap: (movement) {
+                    setState(() {
+                      _selectedMovement = movement;
+                    });
+                  },
+                ),
+                const NewMovementScreen(),
+              ],
             ),
+            if (_selectedMovement != null)
+              Positioned.fill(
+                child: DetailMovement(
+                  movement: _selectedMovement!,
+                  onClose: () => setState(() => _selectedMovement = null),
+                ),
+              ),
             Align(alignment: Alignment.bottomCenter, child: _navBar()),
           ],
         ),
@@ -66,6 +85,7 @@ class _DDSLAppState extends State<DDSLApp> {
               onTap: () {
                 setState(() {
                   indexSelectTab = index;
+                  _selectedMovement = null;
                 });
               },
               child: Column(

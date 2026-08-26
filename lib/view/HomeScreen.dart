@@ -1,12 +1,15 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
+import 'package:ddsl_app/models/movement.dart';
 import 'package:ddsl_app/repository/movement_repository.dart';
 import 'package:ddsl_app/widgets/GreenReactangle.dart';
 import 'package:ddsl_app/widgets/WhiteCardBalance.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final void Function(Movement movement) onMovementTap;
+
+  const HomeScreen({super.key, required this.onMovementTap});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -84,7 +87,8 @@ class _HomeScreenState extends State<HomeScreen> {
           GreenRectangle(
             titlePage: "DDSL APP",
             heightBlockTitle: headerHeight,
-            topTextTitle: 0,
+            topTextTitle: -0.1,
+            fontSizeTitle: 30,
           ),
           Transform.translate(
             offset: Offset(20, topInset - headerHeight + 160),
@@ -114,10 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 final movement = movements[index];
                 return Center(
                   child: InkWell(
-                    onTap: () {
-                      // ignore: avoid_print
-                      print('Selecionado: $movement');
-                    },
+                    onTap: () => widget.onMovementTap(movement),
                     borderRadius: BorderRadius.circular(10),
                     child: Container(
                       width: 370,
@@ -136,8 +137,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Icon(
                                 movement.value < 0
-                                    ? Icons.arrow_downward
-                                    : Icons.arrow_upward,
+                                    ? Icons.arrow_circle_down
+                                    : Icons.arrow_circle_up,
                                 color: movement.value < 0
                                     ? Colors.red
                                     : Colors.green,

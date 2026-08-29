@@ -1,14 +1,20 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 import 'package:ddsl_app/models/movement.dart';
+import 'package:ddsl_app/models/objective.dart';
 import 'package:ddsl_app/repository/movement_repository.dart';
-import 'package:ddsl_app/view/DetailMovement.dart';
+import 'package:ddsl_app/repository/objective_repository.dart';
+import 'package:ddsl_app/view/DetailMovementScreen.dart';
+import 'package:ddsl_app/view/DetailObjectiveScreen.dart';
 import 'package:ddsl_app/view/HomeScreen.dart';
 import 'package:ddsl_app/view/NewMovementScreen.dart';
+import 'package:ddsl_app/view/NewObjectiveScreen.dart';
+import 'package:ddsl_app/view/ObjectiveScreen.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await MovementRepository.instance.loadFromStorage();
+  await ObjectiveRepository.instance.loadFromStorage();
   runApp(const DDSLApp());
 }
 
@@ -23,6 +29,8 @@ class _DDSLAppState extends State<DDSLApp> {
   List<String> iconsNames = ["Home", "Novo", "Metas"];
   int indexSelectTab = 0;
   Movement? _selectedMovement;
+  Objective? _selectedObjective;
+  bool _isCreatingObjective = false;
 
   @override
   Widget build(BuildContext context) {
@@ -41,13 +49,35 @@ class _DDSLAppState extends State<DDSLApp> {
                   },
                 ),
                 const NewMovementScreen(),
+                ObjectiveScreen(
+                  onNewObjective: () =>
+                      setState(() => _isCreatingObjective = true),
+                  onObjectiveTap: (objective) {
+                    setState(() {
+                      _selectedObjective = objective;
+                    });
+                  },
+                ),
               ],
             ),
             if (_selectedMovement != null)
               Positioned.fill(
-                child: DetailMovement(
+                child: DetailMovementScreen(
                   movement: _selectedMovement!,
                   onClose: () => setState(() => _selectedMovement = null),
+                ),
+              ),
+            if (_selectedObjective != null)
+              Positioned.fill(
+                child: DetailObjectiveScreen(
+                  objective: _selectedObjective!,
+                  onClose: () => setState(() => _selectedObjective = null),
+                ),
+              ),
+            if (_isCreatingObjective)
+              Positioned.fill(
+                child: NewObjectiveScreen(
+                  onClose: () => setState(() => _isCreatingObjective = false),
                 ),
               ),
             Align(alignment: Alignment.bottomCenter, child: _navBar()),
@@ -86,6 +116,8 @@ class _DDSLAppState extends State<DDSLApp> {
                 setState(() {
                   indexSelectTab = index;
                   _selectedMovement = null;
+                  _selectedObjective = null;
+                  _isCreatingObjective = false;
                 });
               },
               child: Column(

@@ -6,11 +6,11 @@ import 'package:ddsl_app/view/NewMovementScreen.dart'
 import 'package:ddsl_app/widgets/GreenReactangle.dart';
 import 'package:flutter/material.dart';
 
-class DetailMovement extends StatelessWidget {
+class DetailMovementScreen extends StatelessWidget {
   final Movement movement;
   final VoidCallback? onClose;
 
-  const DetailMovement({super.key, required this.movement, this.onClose});
+  const DetailMovementScreen({super.key, required this.movement, this.onClose});
 
   String _formatMoney(double value) {
     final bool isNegative = value < 0;
@@ -45,10 +45,7 @@ class DetailMovement extends StatelessWidget {
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text(
-                "Excluir",
-                style: TextStyle(color: Colors.red),
-              ),
+              child: const Text("Excluir", style: TextStyle(color: Colors.red)),
             ),
           ],
         );

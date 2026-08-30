@@ -26,7 +26,7 @@ class DDSLApp extends StatefulWidget {
 
 class _DDSLAppState extends State<DDSLApp> {
   List<IconData> iconsList = [Icons.home, Icons.add, Icons.rocket_launch];
-  List<String> iconsNames = ["Home", "Novo", "Metas"];
+  List<String> iconsNames = ["Home", "Novo", "Objetivos"];
   int indexSelectTab = 0;
   Movement? _selectedMovement;
   Objective? _selectedObjective;
